@@ -1,5 +1,78 @@
 <h1 align="center">Excel Sheets Sync</h1>
 
+<p align="center">Xem trước và gửi thay đổi từ file Excel trên máy lên Google Sheets.</p>
+
+<p align="center"><kbd>v0.2.1</kbd> &nbsp; <kbd>Windows x64</kbd> &nbsp; <kbd>Giao diện tiếng Việt</kbd></p>
+
+[English version](#english)
+
+![Giao diện Excel Sheets Sync với hai bảng tồn kho và bản xem trước bốn ô sẽ cập nhật](docs/demo.png)
+
+## Bắt đầu
+
+1. Giải nén ZIP bản Windows rồi mở `ExcelSheetsSync.exe` trong thư mục đã giải nén. Giữ các file và thư mục đi kèm cạnh file thực thi. Bản chạy trực tiếp đã kèm Electron và đọc file bảng tính đã lưu.
+2. Chọn **Mở dữ liệu mẫu → Xem trước → Đồng bộ**. Thao tác này cập nhật dữ liệu mẫu trong app. Mở lại dữ liệu mẫu để đặt lại.
+3. Để thử kết nối thật, hoàn tất [thiết lập đăng nhập Google](#thiết-lập-đăng-nhập-google), rồi làm theo [hướng dẫn thử với bảng tồn kho](examples/README.md) bằng bộ dữ liệu giả đi kèm.
+
+**Dùng máy Windows do công ty quản lý?** File thực thi v0.2.1 chưa được ký số. SmartScreen hoặc chính sách ứng dụng của công ty có thể hạn chế việc chạy app. [Hướng dẫn SmartScreen của Microsoft](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation)
+
+## Đồng bộ bảng tính
+
+Kéo file bảng tính đã lưu vào khung **Excel nguồn**, dán link Google Sheets vào khung **Google Sheets đích**, rồi bấm **Mở Sheets**. Chọn tab và vùng muốn dùng ở mỗi bên.
+
+| Chế độ | Cách hoạt động |
+| --- | --- |
+| **Chép theo vị trí** | Chọn vùng nguồn và ô trên cùng bên trái của vùng đích. App ghi từng giá trị vào vị trí tương ứng tính từ ô đó. |
+| **Cập nhật theo mã** | Chọn vùng có một hàng tiêu đề ở đầu mỗi bên. Ghép cột bằng cách kéo chữ cột hoặc bấm lần lượt chữ cột nguồn và cột đích. Đánh dấu **Khóa** cho một hoặc nhiều cặp để tìm đúng dòng dù thứ tự hai bên khác nhau. |
+
+Bấm **Xem trước** để kiểm tra thay đổi, rồi bấm **Đồng bộ** để ghi. Đặt tên và bấm **Lưu cách ghép** để dùng lại trên cùng hồ sơ Windows.
+
+- **Thêm mã mới vào cuối vùng đích** điền dữ liệu vào các dòng còn trống cuối vùng đích đã chọn. Chừa các dòng trống trong vùng đó và ghép tất cả cột muốn điền.
+- **Ghi thành số** chuyển văn bản theo định dạng Việt Nam như `22.000.000 ₫` thành giá trị số trong cột dữ liệu đã ghép. Các cột khóa giữ nguyên mã định danh.
+- **Phóng to** mở rộng một khung ra toàn chiều ngang và thu khung kia thành bản xem nhỏ ở góc. Bấm bản xem nhỏ để đổi bên. Bấm **Chia đôi** hoặc `Esc` để về chế độ mặc định.
+- Dùng thanh cuộn hoặc touchpad để di chuyển theo hai chiều. Giữ `Shift` và lăn chuột để cuộn ngang, hoặc giữ `Space` rồi kéo để di chuyển bảng. Kéo vùng chọn sát mép lưới để mở rộng vùng ra ngoài phần đang hiển thị.
+
+## Thiết lập đăng nhập Google
+
+Tạo một **OAuth client loại Desktop app** cho app. Mỗi người thử dùng tài khoản Google riêng và quyền truy cập file đã được cấp cho tài khoản đó.
+
+1. Chọn hoặc tạo project Google Cloud rồi bật [Google Sheets API](https://console.cloud.google.com/apis/library/sheets.googleapis.com).
+2. Thiết lập [Google Auth Platform](https://console.cloud.google.com/auth/overview). Nếu app thuộc loại **External** và đang ở chế độ **Testing**, thêm từng người thử vào **Audience → Test users**. Ở chế độ này, quyền truy cập Sheets mà người dùng cấp cho app hết hạn sau bảy ngày. [Hướng dẫn kiểm thử OAuth của Google](https://support.google.com/cloud/answer/15549945?hl=en)
+3. Mở [Clients](https://console.cloud.google.com/auth/clients), tạo OAuth client loại **Desktop app**, rồi tải file JSON của client đó. [Hướng dẫn tạo thông tin xác thực của Google](https://developers.google.com/workspace/guides/create-credentials#desktop-app)
+4. Trong app, bấm **Đăng nhập Google → Chọn JSON và đăng nhập**. Cũng có thể đặt file JSON với tên `google-oauth.json` cạnh file thực thi trước khi mở app. Nếu chạy từ mã nguồn, đặt file ở thư mục gốc của dự án.
+5. Đăng nhập bằng tài khoản có quyền đọc bảng đích. Để đồng bộ, tài khoản cần quyền **Editor** và quyền chỉnh sửa các ô đã chọn.
+
+Giữ file OAuth JSON, token và bảng tính làm việc ngoài Git. Windows lưu phiên đăng nhập Google đã mã hóa, cách ghép và lịch sử đồng bộ tại `%APPDATA%\Excel Sheets Sync`. App gửi các thay đổi đã chọn trực tiếp đến Google Sheets API. Cách ghép và phiên đăng nhập được lưu theo hồ sơ Windows.
+
+> **Gặp lỗi 403 `access_denied` khi đăng nhập?** Kiểm tra email đăng nhập có trong **Test users** của đúng project đã tạo OAuth client đã nhập vào app. Nếu phát hành rộng hơn, xem yêu cầu của Google đối với [quyền truy cập Sheets thuộc nhóm nhạy cảm](https://developers.google.com/workspace/sheets/api/scopes).
+
+## Build và kiểm thử
+
+Dùng Windows x64 với Node.js **22.12 trở lên** và npm.
+
+```powershell
+npm.cmd ci
+npm.cmd start
+npm.cmd test
+npm.cmd run test:desktop
+npm.cmd run package:win
+```
+
+Bài kiểm thử desktop dùng dữ liệu tạo sẵn, hồ sơ app tạm và phản hồi Google mô phỏng. Bản build nằm ở `release/ExcelSheetsSync-win32-x64`. Để phân phối, nén ZIP toàn bộ thư mục đầu ra. Git bỏ qua thư mục `release/`.
+
+## Phạm vi v0.2.1
+
+- Người dùng bấm nút để đồng bộ một chiều vào tab Google Sheets có sẵn. File nguồn hỗ trợ `.xlsx`, `.xlsm`, `.xls`, `.xlsb`, `.csv` và `.tsv`, tối đa 35 MiB mỗi file và 30.000 ô mỗi vùng chọn.
+- App ghi giá trị ô, bao gồm kết quả công thức đã lưu trong file Excel. App bỏ qua ô nguồn trống, giữ số 0, báo mã trùng và chặn ghi lên ô đích chứa công thức, kết quả công thức hoặc thuộc vùng ô gộp. Google Sheets áp dụng định dạng số hiện có ở đích.
+- Bản xem trước hiển thị định dạng cơ bản và ô gộp. Biểu đồ, ảnh nhúng và khung hàng hoặc cột cố định nằm ngoài phạm vi hiển thị.
+- App kiểm tra lại các thay đổi dự kiến trước khi ghi. Khi nhiều người dùng cùng lúc, giao cho mỗi người các hàng hoặc vùng đích riêng để tránh ghi đè lên nhau.
+
+---
+
+<a id="english"></a>
+
+<h1 align="center">Excel Sheets Sync</h1>
+
 <p align="center">Preview and send changes from a local Excel file to Google Sheets.</p>
 
 <p align="center"><kbd>v0.2.1</kbd> &nbsp; <kbd>Windows x64</kbd> &nbsp; <kbd>Vietnamese interface</kbd></p>
