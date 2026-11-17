@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Excel Sheets Sync</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="renderer.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <h1>Excel <span>→</span> Google Sheets</h1>
+    <div class="top-controls">
+      <span id="account">Chưa đăng nhập</span>
+      <button id="login" type="button">Đăng nhập Google</button>
+      <button id="logout" type="button" hidden>Đăng xuất</button>
+      <button id="configure" type="button" title="Nhập tệp OAuth Desktop app từ Google Cloud">Cấu hình OAuth</button>
+      <button id="demo" type="button">Mở dữ liệu mẫu</button>
+    </div>
+  </header>
+  <main id="workspace">
+    <div class="profiles">
+      <label for="profile">Cách ghép đã lưu</label>
+      <select id="profile"><option value="">Chọn cách ghép</option></select>
+      <button id="load" type="button" disabled>Mở</button>
+      <label for="profile-name" class="visually-hidden">Tên cách ghép</label>
+      <input id="profile-name" maxlength="100" placeholder="Tên cách ghép">
+      <button id="save" type="button">Lưu cách ghép</button>
+    </div>
+    <div class="panes" id="panes"></div>
+    <section class="mapping" aria-label="Quy tắc đồng bộ">
+      <div class="mapping-head">
+        <label for="mode">Cách đồng bộ</label>
+        <select id="mode">
+          <option value="key">Cập nhật theo mã</option>
+          <option value="position">Chép theo vị trí</option>
+        </select>
+        <label id="add-option"><input type="checkbox" id="add-missing"> Thêm mã mới vào cuối vùng đích</label>
+      </div>
+      <div id="mapping-detail">
+        <p id="mapping-help">Hai vùng phải gồm hàng tiêu đề. Kéo chữ cột từ Excel sang cột đích, hoặc bấm chữ cột ở hai bên.</p>
+        <div id="pairs"></div>
+      </div>
+      <p id="position-help" hidden>Kéo chọn vùng Excel rồi chọn ô bắt đầu trên Sheets. Có thể kéo nhãn vùng Excel vào một ô đích.</p>
+    </section>
+    <section class="actions" aria-label="Xem trước và ghi">
+      <p id="status" role="status">Mở dữ liệu mẫu để thử, hoặc chọn Excel và kết nối Google Sheets.</p>
+      <div class="action-buttons">
+        <button id="preview" type="button">Xem trước</button>
+        <button id="write" type="button" class="primary" disabled>Đồng bộ</button>
+      </div>
+    </section>
+    <section id="preview-panel" class="preview" aria-label="Kết quả xem trước" hidden></section>
+  </main>
+  <dialog id="google-dialog" aria-labelledby="google-title">
+    <div id="google-setup">
+      <h2 id="google-title">Kết nối Google Sheets</h2>
+      <p>File Sheets vẫn nằm trên Drive. Người phụ trách app tạo tệp OAuth loại <strong>Desktop app</strong> một lần để bật đăng nhập Google.</p>
+      <ol>
+        <li>Trong Google Cloud, chọn project và bật <strong>Google Sheets API</strong>.</li>
+        <li>Trong <strong>Google Auth Platform → Audience</strong>, thêm Gmail của mày vào <strong>Test users</strong> nếu project đang ở chế độ External / Testing.</li>
+        <li>Trong <strong>Clients</strong>, tạo client loại <strong>Desktop app</strong> và tải tệp JSON.</li>
+      </ol>
+      <p id="google-setup-error" role="alert" hidden></p>
+      <div class="dialog-actions">
+        <button id="google-guide" type="button">Hướng dẫn Google</button>
+        <button id="google-close" type="button">Đóng</button>
+        <button id="google-import" type="button" class="primary">Chọn JSON và đăng nhập</button>
+      </div>
+    </div>
+    <div id="google-pending" hidden>
+      <h2>Đăng nhập Google</h2>
+      <p>Hoàn tất đăng nhập và cấp quyền trong trình duyệt, rồi quay lại app.</p>
+      <div class="dialog-actions"><button id="google-cancel" type="button">Hủy đăng nhập</button></div>
+    </div>
+  </dialog>
+  <template id="pane-template">
+    <section class="pane">
+      <header class="pane-title">
+        <div class="pane-identity"><p class="pane-label"></p><h2 class="filename"></h2></div>
+        <div class="pane-controls">
+          <select class="tab" aria-label="Tab"></select>
+          <button class="pane-focus" type="button" aria-pressed="false">Phóng to</button>
+        </div>
+      </header>
+      <div class="pane-entry"></div>
+      <div class="pane-range">
+        <label class="range-label">Vùng</label>
+        <input class="range" placeholder="A1:C20" spellcheck="false">
+        <button class="range-link" type="button" draggable="true" title="Kéo vùng này vào một ô bên Google Sheets">Kéo vùng</button>
+      </div>
+      <div class="grid" role="region" aria-label="Ô bảng tính" tabindex="0"></div>
+      <button class="mini-open" type="button" hidden></button>
+      <div class="pane-footer">
+        <label class="jump-label">Tới dòng <input class="jump-row" type="number" min="1" inputmode="numeric" placeholder="1"></label>
+        <span class="window-label"></span>
+        <span class="window-label" title="Cuộn bằng touchpad, thanh cuộn hoặc giữ Space rồi kéo bằng chuột.">Space + kéo để di chuyển</span>
+      </div>
+    </section>
+  </template>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "name": "excel-sheets-sync",
+  "version": "0.2.1",
+  "description": "Map Excel data to Google Sheets",
+  "main": "app/main.cjs",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test test/*.test.cjs",
+    "test:desktop": "node test/desktop-smoke.cjs",
+    "package:win": "electron-packager . ExcelSheetsSync --platform=win32 --arch=x64 --out=release --overwrite --asar --ignore=\"^/(?!app(?:/|$)|node_modules(?:/|$)|package[.]json$)\""
+  },
+  "dependencies": {
+    "saxes": "6.0.0",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+  },
+  "devDependencies": {
+    "@electron/packager": "20.3.0",
+    "electron": "45.3.2",
+    "playwright-core": "1.65.1"
+  }
+}

@@ -1,0 +1,39 @@
+node_modules/
+release/
+
+# Local data and Google authentication
+/local/
+/private/
+.env
+.env.*
+google-oauth*.json
+google-local.json
+client_secret*.json
+credentials*.json
+token*.json
+profiles.json
+sync-history.jsonl
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Working spreadsheets and portable archives
+*.xls
+*.xlsx
+*.xlsm
+*.xlsb
+*.xltx
+*.xltm
+*.ods
+*.csv
+*.tsv
+*.zip
+!/examples/inventory-source.csv
+!/examples/inventory-destination.csv
+
+# Editor and system artifacts
+.vscode/
+Thumbs.db
+.DS_Store
+*.log
